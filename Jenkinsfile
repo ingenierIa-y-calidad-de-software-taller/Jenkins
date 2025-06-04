@@ -7,7 +7,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir('ci-taller-demo') {
+                dir('Taller-Demo-CICD/ci-taller-demo') {
                     sh 'mvn clean compile'
                 }
             }
@@ -15,7 +15,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                dir('ci-taller-demo') {
+                dir('Taller-Demo-CICD/ci-taller-demo') {
                     sh 'mvn test'
                 }
             }
