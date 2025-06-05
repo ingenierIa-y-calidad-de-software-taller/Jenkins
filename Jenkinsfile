@@ -3,11 +3,16 @@ pipeline {
     tools {
         maven 'maven'
     }
+
+    environment {
+        PROJECT_DIR = '../Taller-Demo-CICD/ci-taller-demo'
+    }
+
     stages {
 
         stage('Build') {
             steps {
-                dir('../Taller-Demo-CICD/ci-taller-demo') {
+                dir("${env.PROJECT_DIR}") {
                     sh 'mvn clean compile'
                 }
             }
@@ -15,7 +20,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                dir('../Taller-Demo-CICD/ci-taller-demo') {
+                dir("${env.PROJECT_DIR}") {
                     sh 'mvn test'
                 }
             }
