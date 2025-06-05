@@ -25,7 +25,14 @@ pipeline {
                 }
             }
         }
-
+    
+        stage('Package') {
+            steps {
+                dir("${env.PROJECT_DIR}") {
+                    sh 'mvn package'
+                }
+            }
+        }
 
     /*
         stage('SonarQube Analysis') {
@@ -86,7 +93,7 @@ pipeline {
     post {
         always {
             script {
-                sh '''
+                sh """
                     echo "==== Prueba de humo (DemoApplicationTests) ====" > test_result_summary.txt
                     if [ -f ${env.PROJECT_DIR}/target/surefire-reports/com.example.demo.DemoApplicationTests.txt ]; then
                         grep "Tests run:" ${env.PROJECT_DIR}/target/surefire-reports/com.example.demo.DemoApplicationTests.txt >> test_result_summary.txt
@@ -101,7 +108,7 @@ pipeline {
                     else
                         echo "No se encontraron resultados." >> test_result_summary.txt
                     fi
-                '''
+                """
             }
         }
 
