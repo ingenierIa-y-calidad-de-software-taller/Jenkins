@@ -88,16 +88,16 @@ pipeline {
             script {
                 sh '''
                     echo "==== Prueba de humo (DemoApplicationTests) ====" > test_result_summary.txt
-                    if [ -f ci-taller-demo/target/surefire-reports/com.example.demo.DemoApplicationTests.txt ]; then
-                        grep "Tests run:" ci-taller-demo/target/surefire-reports/com.example.demo.DemoApplicationTests.txt >> test_result_summary.txt
+                    if [ -f ${env.PROJECT_DIR}/target/surefire-reports/com.example.demo.DemoApplicationTests.txt ]; then
+                        grep "Tests run:" ${env.PROJECT_DIR}/target/surefire-reports/com.example.demo.DemoApplicationTests.txt >> test_result_summary.txt
                     else
                         echo "No se encontraron resultados." >> test_result_summary.txt
                     fi
 
                     echo "" >> test_result_summary.txt
                     echo "==== Resultado HelloWorldControllerTest ====" >> test_result_summary.txt
-                    if [ -f ci-taller-demo/target/surefire-reports/com.example.demo.controllers.HelloWorldControllerTest.txt ]; then
-                        grep "Tests run:" ci-taller-demo/target/surefire-reports/com.example.demo.controllers.HelloWorldControllerTest.txt >> test_result_summary.txt
+                    if [ -f ${env.PROJECT_DIR}/target/surefire-reports/com.example.demo.controllers.HelloWorldControllerTest.txt ]; then
+                        grep "Tests run:" ${env.PROJECT_DIR}/target/surefire-reports/com.example.demo.controllers.HelloWorldControllerTest.txt >> test_result_summary.txt
                     else
                         echo "No se encontraron resultados." >> test_result_summary.txt
                     fi
