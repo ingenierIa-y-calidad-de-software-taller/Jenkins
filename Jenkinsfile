@@ -147,7 +147,7 @@ pipeline {
                     sh """
                         curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \\
                         -d chat_id=${CHAT_ID} \\
-                        -d text="⚠️  Deploy abortado por el usuario.\n ${testSummary}"
+                        -d text="⚠️  Deploy abortado.\n ${testSummary}"
                     """
                 }
             }
