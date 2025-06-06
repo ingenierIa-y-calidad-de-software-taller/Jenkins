@@ -5,7 +5,7 @@ pipeline {
     }
 
     environment {
-        PROJECT_DIR = 'ci-taller-demo'
+        PROJECT_DIR = '../Taller-Demo-CICD/ci-taller-demo'
     }
 
     stages {
