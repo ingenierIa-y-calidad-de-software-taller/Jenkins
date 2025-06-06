@@ -120,7 +120,7 @@ pipeline {
         success {
             withCredentials([
                 string(credentialsId: 'TELEGRAM_BOT_TOKEN', variable: 'BOT_TOKEN'),
-                string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
+                string(credentialsId: 'TELEGRAM_GROUP_CHAT_ID', variable: 'CHAT_ID')
             ]) {
                 script {
                     def testSummary = readFile('test_result_summary.txt').trim()
