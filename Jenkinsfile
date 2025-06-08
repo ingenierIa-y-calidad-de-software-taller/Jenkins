@@ -123,7 +123,7 @@ pipeline {
                 string(credentialsId: 'TELEGRAM_GROUP_CHAT_ID', variable: 'CHAT_ID')
             ]) {
                 script {
-                def testSummary = getTestSummary()
+                def testSummary = fileExists('test_result_summary.txt') ? readFile('test_result_summary.txt').trim() : "Sin resultados."
                 def mensaje = (env.DEPLOY == 'true') 
                     ? "✅ Éxito: Pipeline completado y despliegue ejecutado.\n${testSummary}"
                     : "ℹ️ Éxito: Pipeline completado pero el despliegue fue cancelado por el usuario.\n${testSummary}"
