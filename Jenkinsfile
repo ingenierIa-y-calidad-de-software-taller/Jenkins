@@ -34,7 +34,7 @@ pipeline {
         stage('Build y Test') {
             steps {
                 dir("${env.PROJECT_DIR}") {
-                    sh 'mvn package'
+                    sh 'mvn clean package'
                 }
             }
         }
