@@ -6,7 +6,6 @@ pipeline {
 
     environment {
         PROJECT_DIR = 'ci-taller-demo'
-         DEPLOY = 'false'
     }
 
     stages {
