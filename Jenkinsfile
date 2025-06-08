@@ -123,13 +123,17 @@ pipeline {
                 string(credentialsId: 'TELEGRAM_GROUP_CHAT_ID', variable: 'CHAT_ID')
             ]) {
                 script {
-                    def testSummary = readFile('test_result_summary.txt').trim()
-                    sh """
-                        curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \\
-                        -d chat_id=${CHAT_ID} \\
-                        -d text="✅  Éxito: El pipeline se ha completado correctamente.\n ${testSummary}"
-                    """
-                }
+                def testSummary = getTestSummary()
+                def mensaje = (env.DEPLOY == 'true') 
+                    ? "✅ Éxito: Pipeline completado y despliegue ejecutado.\n${testSummary}"
+                    : "ℹ️ Éxito: Pipeline completado pero el despliegue fue cancelado por el usuario.\n${testSummary}"
+
+                sh """
+                    curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \\
+                    -d chat_id=${CHAT_ID} \\
+                    -d text="${mensaje}"
+                """
+                }    
             }
         }
 
@@ -149,27 +153,6 @@ pipeline {
             }
         }
         
-        aborted {
-            withCredentials([
-                string(credentialsId: 'TELEGRAM_BOT_TOKEN', variable: 'BOT_TOKEN'),
-                string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
-            ]) {
-                script {
-                    def testSummary = fileExists('test_result_summary.txt') ? readFile('test_result_summary.txt').trim() : "Sin resultados."
-
-                    def mensaje = (env.DEPLOY == 'true') 
-                        ? "⚠️  *El pipeline fue abortado después de haber confirmado el despliegue.*\n ${testSummary}"
-                        : "ℹ️  *El pipeline fue abortado antes de realizar el despliegue.*\n ${testSummary}"
-
-                    sh """
-                        curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \\
-                        -d chat_id=${CHAT_ID} \\
-                        -d parse_mode=Markdown \\
-                        -d text="${mensaje}"
-                    """
-                }
-            }
-        }
         /*
         aborted {
                 withCredentials([
