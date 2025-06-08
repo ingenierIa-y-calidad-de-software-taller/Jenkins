@@ -1,3 +1,5 @@
+def desplegar = false
+
 pipeline {
     agent any
     tools {
@@ -14,23 +16,7 @@ pipeline {
                 git url: 'https://github.com/ingenierIa-y-calidad-de-software-taller/Taller-Demo-CICD.git', branch: 'main'
             }
         }
-/*
-        stage('Build') {
-            steps {
-                dir("${env.PROJECT_DIR}") {
-                    sh 'mvn clean compile'
-                }
-            }
-        }
 
-        stage('Test') {
-            steps {
-                dir("${env.PROJECT_DIR}") {
-                    sh 'mvn test'
-                }
-            }
-        }
-  */  
         stage('Build y Test') {
             steps {
                 dir("${env.PROJECT_DIR}") {
@@ -39,25 +25,7 @@ pipeline {
             }
         }
 
-    /*
-        stage('SonarQube Analysis') {
-            steps {
-                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-                    dir('ci-taller-demo') {
-                        sh '''
-                    mvn clean verify sonar:sonar \
-                    -Dsonar.projectKey=ingenierIa-y-calidad-de-software-taller_Taller-Demo-CICD \
-                    -Dsonar.token=${SONAR_TOKEN} \
-                    -Dsonar.host.url=https://sonarcloud.io \
-                    -X
-                    '''
-                    }
-                }
-            }
-        }
-
-    */
-         stage('Confirmar despliegue') {
+        stage('Confirmar despliegue') {
             steps {
                 script {
                     def userInput = input(
@@ -67,33 +35,31 @@ pipeline {
                             choice(choices: ['Sí', 'No'], description: 'Selecciona una opción', name: 'Desplegar')
                         ]
                     )
-                    env.DEPLOY = (userInput == 'Sí') ? 'true' : 'false'
-                    }
+                    desplegar = (userInput == 'Sí')
+                }
             }
-         }
-
-
-    stage('Deploy on Render') {
-        when {
-            expression { env.DEPLOY == 'true' }
         }
-        steps {
-            script {
-                withCredentials([
-                    string(credentialsId: 'RENDER_API_KEY', variable: 'RENDER_API_KEY'),
-                    string(credentialsId: 'RENDER_SERVICE_ID', variable: 'RENDER_SERVICE_ID')
-                ]) {
-                    sh '''
-                        curl -X POST https://api.render.com/deploy/srv-$RENDER_SERVICE_ID \
-                            -H "Authorization: Bearer $RENDER_API_KEY" \
-                            -H "Accept: application/json"
-                    '''
+
+        stage('Deploy on Render') {
+            when {
+                expression { return desplegar }
+            }
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'RENDER_API_KEY', variable: 'RENDER_API_KEY'),
+                        string(credentialsId: 'RENDER_SERVICE_ID', variable: 'RENDER_SERVICE_ID')
+                    ]) {
+                        sh '''
+                            curl -X POST https://api.render.com/deploy/srv-$RENDER_SERVICE_ID \
+                                -H "Authorization: Bearer $RENDER_API_KEY" \
+                                -H "Accept: application/json"
+                        '''
+                    }
                 }
             }
         }
     }
-
-}
 
     post {
         always {
@@ -123,17 +89,17 @@ pipeline {
                 string(credentialsId: 'TELEGRAM_GROUP_CHAT_ID', variable: 'CHAT_ID')
             ]) {
                 script {
-                def testSummary = fileExists('test_result_summary.txt') ? readFile('test_result_summary.txt').trim() : "Sin resultados."
-                def mensaje = (env.DEPLOY == 'true') 
-                    ? "✅ Éxito: Pipeline completado y despliegue ejecutado.\n${testSummary}"
-                    : "ℹ️ Éxito: Pipeline completado pero el despliegue fue cancelado por el usuario.\n${testSummary}"
+                    def testSummary = fileExists('test_result_summary.txt') ? readFile('test_result_summary.txt').trim() : "Sin resultados."
+                    def mensaje = (desplegar)
+                        ? "✅ Éxito: Pipeline completado y despliegue ejecutado.\n${testSummary}"
+                        : "ℹ️ Éxito: Pipeline completado pero el despliegue fue cancelado por el usuario.\n${testSummary}"
 
-                sh """
-                    curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \\
-                    -d chat_id=${CHAT_ID} \\
-                    -d text="${mensaje}"
-                """
-                }    
+                    sh """
+                        curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \\
+                        -d chat_id=${CHAT_ID} \\
+                        -d text="${mensaje}"
+                    """
+                }
             }
         }
 
@@ -152,24 +118,5 @@ pipeline {
                 }
             }
         }
-        
-        /*
-        aborted {
-                withCredentials([
-                string(credentialsId: 'TELEGRAM_BOT_TOKEN', variable: 'BOT_TOKEN'),
-                string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
-            ]) {
-                    script {
-                        def testSummary = fileExists('test_result_summary.txt') ? readFile('test_result_summary.txt').trim() : "Sin resultados."
-                    sh """
-                        curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \\
-                        -d chat_id=${CHAT_ID} \\
-                        -d text="⚠️  Deploy abortado.\n ${testSummary}"
-                    """
-                }
-            }
-        }
-        */
     }
-
 }
