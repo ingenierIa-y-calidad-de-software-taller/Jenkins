@@ -34,9 +34,7 @@ pipeline {
         stage('Build y Test') {
             steps {
                 dir("${env.PROJECT_DIR}") {
-                   catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        sh 'mvn clean package'
-                    }
+                    sh 'mvn clean package'
                 }
             }
         }
