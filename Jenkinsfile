@@ -148,7 +148,29 @@ pipeline {
                 }
             }
         }
+        
+        aborted {
+            withCredentials([
+                string(credentialsId: 'TELEGRAM_BOT_TOKEN', variable: 'BOT_TOKEN'),
+                string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
+            ]) {
+                script {
+                    def testSummary = fileExists('test_result_summary.txt') ? readFile('test_result_summary.txt').trim() : "Sin resultados."
 
+                    def mensaje = (env.DEPLOY == 'true') 
+                        ? "⚠️  *El pipeline fue abortado después de haber confirmado el despliegue.*\n ${testSummary}"
+                        : "ℹ️  *El pipeline fue abortado antes de realizar el despliegue.*\n ${testSummary}"
+
+                    sh """
+                        curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \\
+                        -d chat_id=${CHAT_ID} \\
+                        -d parse_mode=Markdown \\
+                        -d text="${mensaje}"
+                    """
+                }
+            }
+        }
+        /*
         aborted {
                 withCredentials([
                 string(credentialsId: 'TELEGRAM_BOT_TOKEN', variable: 'BOT_TOKEN'),
@@ -164,6 +186,7 @@ pipeline {
                 }
             }
         }
+        */
     }
 
 }
