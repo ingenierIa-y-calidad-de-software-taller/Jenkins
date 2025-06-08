@@ -14,7 +14,7 @@ pipeline {
                 git url: 'https://github.com/ingenierIa-y-calidad-de-software-taller/Taller-Demo-CICD.git', branch: 'main'
             }
         }
-
+/*
         stage('Build') {
             steps {
                 dir("${env.PROJECT_DIR}") {
@@ -30,8 +30,8 @@ pipeline {
                 }
             }
         }
-    
-        stage('Package') {
+  */  
+        stage('Build y Test') {
             steps {
                 dir("${env.PROJECT_DIR}") {
                     sh 'mvn package'
