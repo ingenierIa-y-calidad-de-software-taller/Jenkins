@@ -1,4 +1,3 @@
-def DEPLOY = false
 pipeline {
     agent any
     tools {
@@ -7,6 +6,7 @@ pipeline {
 
     environment {
         PROJECT_DIR = 'ci-taller-demo'
+         DEPLOY = 'false'
     }
 
     stages {
@@ -68,7 +68,7 @@ pipeline {
                             choice(choices: ['Sí', 'No'], description: 'Selecciona una opción', name: 'Desplegar')
                         ]
                     )
-                    env.DEPLOY = (userInput == 'Sí')
+                    env.DEPLOY = (userInput == 'Sí') ? 'true' : 'false'
                     }
             }
          }
@@ -76,7 +76,7 @@ pipeline {
 
     stage('Deploy on Render') {
         when {
-            expression { return DEPLOY }
+            expression { env.DEPLOY == 'true' }
         }
         steps {
             script {
@@ -125,7 +125,7 @@ pipeline {
             ]) {
                 script {
                 def testSummary = fileExists('test_result_summary.txt') ? readFile('test_result_summary.txt').trim() : "Sin resultados."
-                def mensaje = DEPLOY  
+                def mensaje = (env.DEPLOY == 'true')  
                     ? "✅ Éxito: Pipeline completado y despliegue ejecutado.\n${testSummary}"
                     : "ℹ️ Éxito: Pipeline completado pero el despliegue fue cancelado por el usuario.\n${testSummary}"
 
